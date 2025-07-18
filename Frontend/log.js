@@ -1,9 +1,5 @@
 import { Log } from './log';
-
-
 Log("backend", "error", "handler", "received string, expected bool");
-
-
 Log("backend", "fatal", "db", "Critical database connection failure.");
 
 export async function Log(stack, level, pkg, message) {
