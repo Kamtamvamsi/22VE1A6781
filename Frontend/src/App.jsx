@@ -8,7 +8,7 @@ function App() {
   return (
     <>
     <div className="heading">
-      <h1>Welcome to the URl shortner</h1>
+      <h1>URl shortner</h1>
     </div>
     <div className="bth-url">
       <div className="url-input">
