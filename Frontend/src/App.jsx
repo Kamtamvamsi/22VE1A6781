@@ -1,19 +1,15 @@
 // import { useState } from 'react'
 import { useState, useEffect } from 'react'
 import './App.css'
-// ...existing code...
 function App() {
   const [url, setUrl] = useState("");
   const [shortened, setShortened] = useState([]);
   const [copied, setCopied] = useState("");
 
-  // Load from localStorage on mount
   useEffect(() => {
     const data = localStorage.getItem("shortenedUrls");
     if (data) setShortened(JSON.parse(data));
   }, []);
-
-  // Save to localStorage when shortened changes
   useEffect(() => {
     localStorage.setItem("shortenedUrls", JSON.stringify(shortened));
   }, [shortened]);
@@ -24,7 +20,6 @@ function App() {
 
   function handleShorten() {
     if (!url.trim()) return;
-    // Check if already shortened
     const found = shortened.find(item => item.original === url);
     if (found) return;
     const code = generateShortCode();
