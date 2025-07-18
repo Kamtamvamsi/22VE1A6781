@@ -1,10 +1,32 @@
 // import { useState } from 'react'
-import { useState, useEffect } from 'react'
-import './App.css'
+import { useState, useEffect } from 'react';
+import './App.css';
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Container,
+  Paper,
+  TextField,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  IconButton,
+  Snackbar,
+  Tooltip
+} from '@mui/material';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 function App() {
   const [url, setUrl] = useState("");
   const [shortened, setShortened] = useState([]);
   const [copied, setCopied] = useState("");
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMsg, setSnackbarMsg] = useState("");
 
   useEffect(() => {
     const data = localStorage.getItem("shortenedUrls");
@@ -41,6 +63,8 @@ function App() {
   function handleCopy(shortUrl) {
     navigator.clipboard.writeText(shortUrl);
     setCopied(shortUrl);
+    setSnackbarMsg("Copied to clipboard!");
+    setSnackbarOpen(true);
     setTimeout(() => setCopied(""), 1000);
   }
 
@@ -48,66 +72,113 @@ function App() {
 
   return (
     <>
-      <div className="heading">
-        <h1>URL Shortener</h1>
-      </div>
-      <div className="bth-url">
-        <div className="url-input">
-          <input
-            type="text"
-            placeholder="Paste your long URL here..."
-            value={url}
-            onChange={e => setUrl(e.target.value)}
-          />
-        </div>
-        <button className="btn" onClick={handleShorten}>
-          Shorten URL
-        </button>
-      </div>
-      <div className="shortened-list">
+      <AppBar position="static" color="primary">
+        <Toolbar>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1, textAlign: 'center' }}>
+            URL Shortener
+          </Typography>
+        </Toolbar>
+      </AppBar>
+      <Container maxWidth="md" sx={{ mt: 4 }}>
+        <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
+          <form
+            onSubmit={e => {
+              e.preventDefault();
+              handleShorten();
+            }}
+            style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}
+          >
+            <TextField
+              label="Paste your long URL here..."
+              variant="outlined"
+              value={url}
+              onChange={e => setUrl(e.target.value)}
+              fullWidth
+              sx={{ flex: 1 }}
+            />
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleShorten}
+              type="submit"
+              sx={{ minWidth: 140 }}
+            >
+              Shorten URL
+            </Button>
+          </form>
+        </Paper>
         {shortened.length > 0 && (
-          <table>
-            <thead>
-              <tr>
-                <th>Short URL</th>
-                <th>Original URL</th>
-                <th>Clicks</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {shortened.map(item => {
-                const shortUrl = `${base}?s=${item.code}`;
-                return (
-                  <tr key={item.code}>
-                    <td>
-                      <a
-                        href="#"
-                        onClick={e => {
-                          e.preventDefault();
-                          handleVisit(item.code);
-                        }}
-                      >
-                        {shortUrl}
-                      </a>
-                      <button onClick={() => handleCopy(shortUrl)} style={{marginLeft: 8}}>
-                        {copied === shortUrl ? "Copied!" : "Copy"}
-                      </button>
-                    </td>
-                    <td style={{maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis'}}>
-                      <span title={item.original}>{item.original}</span>
-                    </td>
-                    <td>{item.clicks}</td>
-                    <td>
-                      <button onClick={() => handleVisit(item.code)}>Visit</button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+          <TableContainer component={Paper} elevation={2}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Short URL</TableCell>
+                  <TableCell>Original URL</TableCell>
+                  <TableCell>Clicks</TableCell>
+                  <TableCell>Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {shortened.map(item => {
+                  const shortUrl = `${base}?s=${item.code}`;
+                  return (
+                    <TableRow key={item.code}>
+                      <TableCell>
+                        <Tooltip title="Open short URL">
+                          <Button
+                            href="#"
+                            onClick={e => {
+                              e.preventDefault();
+                              handleVisit(item.code);
+                            }}
+                            endIcon={<OpenInNewIcon fontSize="small" />}
+                            size="small"
+                            sx={{ textTransform: 'none' }}
+                          >
+                            {shortUrl}
+                          </Button>
+                        </Tooltip>
+                        <Tooltip title={copied === shortUrl ? "Copied!" : "Copy to clipboard"}>
+                          <IconButton
+                            color={copied === shortUrl ? "success" : "default"}
+                            onClick={() => handleCopy(shortUrl)}
+                            sx={{ ml: 1 }}
+                          >
+                            <ContentCopyIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      </TableCell>
+                      <TableCell sx={{ maxWidth: 250, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        <Tooltip title={item.original}>
+                          <span>{item.original}</span>
+                        </Tooltip>
+                      </TableCell>
+                      <TableCell>{item.clicks}</TableCell>
+                      <TableCell>
+                        <Button
+                          variant="outlined"
+                          color="secondary"
+                          onClick={() => handleVisit(item.code)}
+                          size="small"
+                        >
+                          Visit
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </TableContainer>
         )}
-      </div>
+        <Snackbar
+          open={snackbarOpen}
+          autoHideDuration={1200}
+          onClose={() => setSnackbarOpen(false)}
+          message={snackbarMsg}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        />
+      </Container>
     </>
   );
 }
