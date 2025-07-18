@@ -14,7 +14,9 @@ function App() {
       <div className="url-input">
         <input type="text" />
       </div>
-      <button className="btn">Shorten URL</button> 
+      <button className="btn" onClick={()=>(
+        console.log('you have given the url')
+      )}>Shorten URL</button> 
     </div>
     </>
   )
