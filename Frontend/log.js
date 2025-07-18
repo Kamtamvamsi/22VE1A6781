@@ -21,7 +21,6 @@ export async function Log(stack, level, pkg, message) {
       }),
     });
   } catch (err) {
-    // Optionally handle logging errors here
     console.error('Failed to send log:', err);
   }
 }
